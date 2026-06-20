@@ -1,0 +1,151 @@
+################################################################################
+# FedASIO-YOLO26 — Central Configuration
+# Project: Privacy-Preserving Federated Brain Tumor Segmentation
+# Dataset: BraTS-PEDs-v1 (Pediatric Brain Tumor, 257 patients)
+################################################################################
+
+project:
+  name: "FedASIO-YOLO26"
+  seed: 42
+  device: "mps"           # Apple M5 GPU (Metal Performance Shaders)
+  amp: false              # Disable AMP for MPS stability
+  workers: 0              # macOS multiprocessing fix
+
+# ─── Dataset ──────────────────────────────────────────────────────────────────
+data:
+  raw_dir: "/Users/shrikant/Downloads/BraTS-PEDs-v1/Training"
+  val_dir: "/Users/shrikant/Downloads/BraTS-PEDs-v1/Validation"
+  processed_dir: "/Users/shrikant/Downloads/FedASIO-YOLO26/data/processed"
+  splits_file: "/Users/shrikant/Downloads/FedASIO-YOLO26/data/splits/patient_splits.json"
+
+  # Data split (of 257 training patients)
+  splits:
+    sample: 5             # Phase 1: quick sanity check
+    train: 0.25           # 65 patients → federated training
+    val: 0.05             # 13 patients → FL validation per round
+    test: 0.05            # 13 patients → final evaluation
+    streamlit: 0.65       # 166 patients → Streamlit live demo
+
+  # Preprocessing
+  img_size: 256
+  modalities: ["t1c", "t1n", "t2f", "t2w"]
+  seg_key: "seg"
+  min_tumor_area: 50      # Minimum tumor pixel area to keep slice
+  tumor_classes:
+    0: "background"
+    1: "SNFH"             # Surrounding Non-Enhancing FLAIR Hyperintensity
+    2: "tumor_core"       # Tumor Core
+    3: "enhancing_tumor"  # Enhancing Tumor
+
+# ─── YOLO26-Seg Model ─────────────────────────────────────────────────────────
+model:
+  name: "yolo26n-seg"
+  weights: null           # null = train from scratch; or path to .pt file
+  task: "segment"
+  img_size: 256
+  epochs: 50              # Per federated round (local_epochs × rounds)
+  local_epochs: 3         # Local epochs per FL client per round
+  batch_size: 8           # Optimized for M5 16GB RAM
+  conf_threshold: 0.25
+  iou_threshold: 0.5
+  freeze: 0               # Layers to freeze (0 = none, train all)
+  nc: 3                   # Number of classes (SNFH, TC, ET)
+
+# ─── ASIO Optimizer ───────────────────────────────────────────────────────────
+asio:
+  n_particles: 5
+  n_asteroids: 2          # Top-k particles = Asteroids
+  n_satellites: 3         # Remaining particles = Satellites
+  iterations: 3           # ASIO iterations per FL round
+  alpha: 0.1              # Asteroid orbital attraction coefficient
+  omega: 0.6              # Satellite inertia weight
+  c1: 1.4                 # Satellite cognitive coefficient (toward host Asteroid)
+  c2: 1.4                 # Satellite global coefficient (toward gbest)
+  perturbation_prob: 0.2  # Orbital perturbation jump probability
+  perturbation_scale: 0.01  # Perturbation σ = scale × (UB - LB)
+  fitness_metric: "dice"  # Use real YOLO val Dice as fitness function
+
+  # 6D Hyperparameter Search Space
+  search_space:
+    lr0:          [1.0e-5, 1.0e-1]   # Initial learning rate (log-uniform)
+    momentum:     [0.80,   0.99]     # SGD momentum
+    weight_decay: [1.0e-5, 1.0e-2]  # Weight decay (log-uniform)
+    conf:         [0.10,   0.90]     # Confidence threshold
+    iou:          [0.30,   0.70]     # IoU threshold
+    batch_size:   [8,      32]       # Batch size (discrete: 8, 16, 32)
+
+# ─── PSO (Aggregation Weight Optimizer) ───────────────────────────────────────
+pso:
+  n_particles: 3
+  iterations: 5
+  omega: 0.6
+  c1: 1.4
+  c2: 1.4
+
+# ─── Federated Learning ───────────────────────────────────────────────────────
+federated:
+  n_clients: 5
+  global_rounds: 50
+  fraction_fit: 1.0       # All clients participate (small N)
+  fraction_evaluate: 1.0
+  min_fit_clients: 3
+  min_available_clients: 5
+  server_address: "localhost:8080"
+  strategy: "fedasio"     # fedasio | fedavg | fedprox | fedadam
+  fedprox_mu: 0.01        # FedProx proximal term
+  fedadam_eta: 0.01       # FedAdam learning rate
+  fedadam_beta1: 0.9
+  fedadam_beta2: 0.99
+  fedadam_tau: 1.0e-3
+
+# ─── Differential Privacy ─────────────────────────────────────────────────────
+privacy:
+  enabled: true
+  epsilon: 1.0            # Privacy budget
+  delta: 1.0e-5           # DP delta
+  noise_multiplier: 1.1   # Gaussian noise σ
+  max_grad_norm: 1.0      # Gradient clipping bound
+  accountant: "rdp"       # Rényi DP accountant
+
+# ─── LangGraph Multi-Agent ────────────────────────────────────────────────────
+agents:
+  max_retries: 3          # Per-agent error retry count
+  timeout_sec: 300        # Agent timeout in seconds
+  enable_xai: true        # Generate GradCAM explanations
+  enable_reports: true    # Generate PDF clinical reports
+  qwen:
+    model_id: "Qwen/Qwen2.5-7B-Instruct"
+    max_new_tokens: 512
+    temperature: 0.3
+    hf_token_env: "HF_TOKEN"  # Set: export HF_TOKEN=your_token
+
+# ─── Evaluation Metrics ───────────────────────────────────────────────────────
+metrics:
+  - "dice"
+  - "iou"
+  - "mAP50"
+  - "mAP50_95"
+  - "precision"
+  - "recall"
+  - "f1"
+  - "hausdorff_95"
+  - "communication_cost_mb"
+  - "training_time_sec"
+  - "privacy_epsilon"
+
+# ─── Output Paths ─────────────────────────────────────────────────────────────
+paths:
+  project_root: "/Users/shrikant/Downloads/FedASIO-YOLO26"
+  models: "models/yolo26/weights"
+  reports: "reports/pdf_reports"
+  figures: "reports/figures"
+  metrics: "reports/metrics"
+  logs: "logs"
+
+# ─── Streamlit Dashboard ──────────────────────────────────────────────────────
+streamlit:
+  host: "localhost"
+  port: 8501
+  theme: "dark"
+  page_title: "FedASIO-YOLO26 Clinical Intelligence"
+  page_icon: "🧠"

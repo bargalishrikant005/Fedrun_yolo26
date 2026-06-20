@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FedASIO-YOLO26: System Architecture & Workflow (Research Paper Ready)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ─── Theme Configurations ─── */
+        /* Light Mode (Default: Premium White/Slate) */
+        :root {
+            --bg-color: #ffffff;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-purple: #7c3aed;
+            --accent-blue: #2563eb;
+            --accent-emerald: #059669;
+            --accent-neon: #9333ea;
+            --flow-download: rgba(124, 58, 237, 0.35);
+            --flow-download-active: #7c3aed;
+            --flow-upload: rgba(37, 99, 235, 0.35);
+            --flow-upload-active: #2563eb;
+            --sub-bg: #f8fafc;
+            --sub-border: #e2e8f0;
+        }
+
+        /* Dark Mode */
+        body.theme-dark {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.95);
+            --card-border: #1f2937;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent-purple: #a78bfa;
+            --accent-blue: #60a5fa;
+            --accent-emerald: #34d399;
+            --accent-neon: #c084fc;
+            --flow-download: rgba(167, 139, 250, 0.35);
+            --flow-download-active: #a78bfa;
+            --flow-upload: rgba(96, 165, 250, 0.35);
+            --flow-upload-active: #60a5fa;
+            --sub-bg: #1f2937;
+            --sub-border: #374151;
+        }
+
+        /* Publication White Mode (Optimized for LaTeX/Word papers) */
+        body.theme-publication {
+            --bg-color: #ffffff;
+            --card-bg: #ffffff;
+            --card-border: #000000;
+            --text-primary: #000000;
+            --text-secondary: #000000;
+            --accent-purple: #000000;
+            --accent-blue: #000000;
+            --accent-emerald: #000000;
+            --accent-neon: #000000;
+            --flow-download: #000000;
+            --flow-download-active: #000000;
+            --flow-upload: #000000;
+            --flow-upload-active: #000000;
+            --sub-bg: #ffffff;
+            --sub-border: #000000;
+            font-family: 'Times New Roman', Times, serif !important;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: 50px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 655px;
+            margin: 0 auto;
+        }
+
+        /* Controls / Tabs */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 10;
+            flex-wrap: wrap;
+        }
+
+        /* Theme Selector Group */
+        .theme-selector {
+            display: flex;
+            background: #f1f5f9;
+            border: 1px solid var(--card-border);
+            border-radius: 30px;
+            padding: 3px;
+            gap: 2px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        body.theme-dark .theme-selector {
+            background: #1e293b;
+        }
+
+        .theme-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .theme-btn.active {
+            background: var(--text-primary);
+            color: var(--bg-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .tab-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 10px 20px;
+            border-radius: 30px;
+            color: var(--text-secondary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-btn:hover {
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);
+        }
+
+        /* Export/Print Button */
+        .print-btn {
+            background: #10b981;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .print-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.35);
+        }
+
+        /* Main Workspace Container */
+        .workspace {
+            position: relative;
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+            min-height: 800px;
+            padding: 20px;
+            z-index: 5;
+        }
+
+        .view-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .view-content.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Card System */
+        .card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--card-border);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute;
+            z-index: 10;
+            color: var(--text-primary);
+        }
+
+        .card:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(124, 58, 237, 0.12);
+        }
+
+        body.theme-dark .card:hover {
+            border-color: var(--accent-purple);
+            box-shadow: 0 15px 35px rgba(167, 139, 250, 0.15);
+        }
+
+        body.theme-publication .card {
+            box-shadow: none !important;
+            transform: none !important;
+            border-width: 2px !important;
+        }
+
+        body.theme-publication .card:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            border-color: #000000 !important;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        /* Central Server Card Specifics */
+        .server-card {
+            width: 400px;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 20px;
+            border-top: 4px solid var(--accent-neon);
+        }
+
+        body.theme-publication .server-card {
+            border-top-width: 4px !important;
+            border-top-color: #000000 !important;
+        }
+
+        .server-components {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sub-component {
+            background: var(--sub-bg);
+            border: 1px solid var(--sub-border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.82rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sub-component strong {
+            color: var(--accent-neon);
+        }
+
+        /* Client Cards Specifics */
+        .client-card {
+            width: 540px;
+            top: 380px;
+            border-top: 4px solid var(--accent-blue);
+        }
+
+        body.theme-publication .client-card {
+            border-top-width: 4px !important;
+            border-top-color: #000000 !important;
+        }
+
+        .client-card.client-1 {
+            left: 20px;
+        }
+
+        .client-card.client-2 {
+            right: 20px;
+        }
+
+        /* Multi-Agent Chain layout inside clients */
+        .agent-chain {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .agent-node {
+            background: var(--sub-bg);
+            border: 1px solid var(--sub-border);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .agent-node:hover {
+            background: rgba(124, 58, 237, 0.05);
+            border-color: rgba(124, 58, 237, 0.3);
+            transform: scale(1.03);
+        }
+
+        body.theme-publication .agent-node:hover {
+            transform: none !important;
+            background: #ffffff !important;
+            border-color: #000000 !important;
+        }
+
+        .agent-node span {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--accent-blue);
+        }
+
+        /* Database Badge */
+        .db-badge {
+            background: rgba(5, 150, 105, 0.08);
+            border: 1px solid rgba(5, 150, 105, 0.15);
+            color: var(--accent-emerald);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        /* SVG Overlay for Connections */
+        .connections-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .connection-path {
+            fill: none;
+            stroke: var(--flow-download);
+            stroke-width: 2.2;
+            stroke-dasharray: 8 4;
+            animation: flowDash 30s linear infinite;
+            transition: stroke 0.3s ease, stroke-width 0.3s ease;
+        }
+
+        .connection-path.upload {
+            stroke: var(--flow-upload);
+        }
+
+        .connection-path.active {
+            stroke: var(--flow-download-active) !important;
+            stroke-width: 3.5;
+        }
+
+        .connection-path.upload.active {
+            stroke: var(--flow-upload-active) !important;
+        }
+
+        .marker-path {
+            fill: var(--flow-download-active);
+            transition: fill 0.3s ease;
+        }
+
+        body.theme-publication .marker-path {
+            fill: #000000 !important;
+        }
+
+        @keyframes flowDash {
+            to {
+                stroke-dashoffset: -1000;
+            }
+        }
+
+        /* Floating Flow Badges */
+        .flow-badge {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            z-index: 15;
+            pointer-events: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .flow-badge.return {
+            border-color: var(--card-border);
+        }
+
+        .flow-badge.active {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.15);
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+        }
+
+        /* Scenario Layout */
+        .scenarios-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .scenario-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+            border-left: 5px solid var(--accent-purple);
+            position: relative;
+            color: var(--text-primary);
+        }
+
+        .scenario-card.baseline {
+            border-left-color: var(--accent-blue);
+        }
+
+        .scenario-card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .scenario-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+        }
+
+        .scenario-card.asio .scenario-badge {
+            background: rgba(124, 58, 237, 0.08);
+            color: var(--accent-purple);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .scenario-card.baseline .scenario-badge {
+            background: rgba(37, 99, 235, 0.08);
+            color: var(--accent-blue);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+        }
+
+        .scenario-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .scenario-features li {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scenario-features li::before {
+            content: "✦";
+            color: var(--accent-purple);
+        }
+
+        .scenario-card.baseline .scenario-features li::before {
+            color: var(--accent-blue);
+        }
+
+        /* Legend Panel */
+        .legend {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 30px;
+            padding: 10px 24px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px auto 0;
+            width: fit-content;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-purple { background-color: var(--accent-purple); }
+        .dot-blue { background-color: var(--accent-blue); }
+        .dot-emerald { background-color: var(--accent-emerald); }
+
+        /* 📄 Publication/Paper Mode Custom Overrides */
+        body.theme-publication header {
+            display: none !important;
+        }
+
+        body.theme-publication .tab-btn,
+        body.theme-publication .print-btn {
+            display: none !important;
+        }
+
+        body.theme-publication .legend {
+            background: #ffffff !important;
+            border: 1.5px solid #000000 !important;
+            box-shadow: none !important;
+            color: #000000 !important;
+            margin-top: 30px;
+        }
+
+        body.theme-publication .legend-item {
+            color: #000000 !important;
+        }
+
+        body.theme-publication .legend-dot {
+            border: 1px solid #000000 !important;
+            background-color: #000000 !important;
+        }
+
+        body.theme-publication .card {
+            background: #ffffff !important;
+            border: 2px solid #000000 !important;
+            box-shadow: none !important;
+            color: #000000 !important;
+            transform: none !important;
+        }
+
+        body.theme-publication .card-title {
+            border-bottom: 1.5px solid #000000;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            font-family: 'Times New Roman', Times, serif !important;
+        }
+
+        body.theme-publication .card-title span {
+            display: none !important; /* Hide Emojis for publication */
+        }
+
+        body.theme-publication .card-desc {
+            color: #000000 !important;
+        }
+
+        body.theme-publication .sub-component,
+        body.theme-publication .agent-node {
+            background: #ffffff !important;
+            border: 1px solid #000000 !important;
+            color: #000000 !important;
+            transform: none !important;
+        }
+
+        body.theme-publication .sub-component strong,
+        body.theme-publication .agent-node span {
+            color: #000000 !important;
+            font-weight: bold;
+        }
+
+        body.theme-publication .db-badge {
+            background: #ffffff !important;
+            border: 1.5px solid #000000 !important;
+            color: #000000 !important;
+        }
+
+        body.theme-publication .connection-path {
+            stroke-dasharray: none !important; /* Solid lines for papers */
+            animation: none !important;
+            stroke-width: 2px !important;
+        }
+
+        body.theme-publication .marker-path {
+            fill: #000000 !important;
+        }
+
+        body.theme-publication .flow-badge {
+            border: 1.5px solid #000000 !important;
+            box-shadow: none !important;
+            background: #ffffff !important;
+        }
+
+        body.theme-publication .scenario-card {
+            background: #ffffff !important;
+            border: 2px solid #000000 !important;
+            border-left: 6px solid #000000 !important;
+            box-shadow: none !important;
+            color: #000000 !important;
+        }
+
+        body.theme-publication .scenario-card h3 {
+            border-bottom: 1.5px solid #000000;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+
+        body.theme-publication .scenario-badge {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #000000 !important;
+        }
+
+        body.theme-publication .scenario-features li {
+            color: #000000 !important;
+        }
+
+        body.theme-publication .scenario-features li::before {
+            content: "•" !important;
+            color: #000000 !important;
+        }
+
+        /* 🖨️ Publication / Print Stylesheet Optimization */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 10pt;
+                font-family: 'Times New Roman', Times, serif !important;
+            }
+
+            /* Hide interactive components */
+            header, .controls, .legend {
+                display: none !important;
+            }
+
+            .workspace {
+                max-width: 100% !important;
+                min-height: auto !important;
+                height: 700px !important;
+                margin: 0 auto !important;
+                position: relative !important;
+                page-break-inside: avoid;
+            }
+
+            .card {
+                background: #ffffff !important;
+                border: 2px solid #000000 !important;
+                box-shadow: none !important;
+                color: #000000 !important;
+                page-break-inside: avoid;
+            }
+
+            .card-title span {
+                display: none !important;
+            }
+
+            .sub-component, .agent-node {
+                background: #ffffff !important;
+                border: 1px solid #000000 !important;
+                color: #000000 !important;
+            }
+
+            .db-badge {
+                border: 1px solid #000000 !important;
+                color: #000000 !important;
+                background: none !important;
+            }
+
+            .connection-path {
+                stroke: #000000 !important;
+                stroke-width: 2.2px !important;
+                stroke-dasharray: none !important; /* solid lines for print */
+                animation: none !important;
+            }
+
+            .flow-badge {
+                background: #ffffff !important;
+                border: 1.5px solid #000000 !important;
+                color: #000000 !important;
+                font-size: 8pt !important;
+                box-shadow: none !important;
+            }
+
+            /* Force standard font colors to black for publishing */
+            .card-desc, .sub-component span, .agent-node span {
+                color: #000000 !important;
+            }
+
+            .sub-component strong, .agent-node span {
+                color: #000000 !important;
+                font-weight: 700 !important;
+            }
+
+            /* Adjust SVG arrowhead color for print */
+            marker path {
+                fill: #000000 !important;
+            }
+        }
+    </style>
+</head>
+<body class="theme-light">
+
+    <header>
+        <h1>System Architecture & Workflow</h1>
+        <p>High-definition publication diagram of the 2-Client Federated Learning Framework & Comparative Study Scenarios.</p>
+    </header>
+
+    <div class="controls">
+        <div class="theme-selector">
+            <button class="theme-btn active" id="btn-theme-light" onclick="setTheme('light')">☀️ Light</button>
+            <button class="theme-btn" id="btn-theme-dark" onclick="setTheme('dark')">🌙 Dark</button>
+            <button class="theme-btn" id="btn-theme-publication" onclick="setTheme('publication')">📄 Research Paper</button>
+        </div>
+        <button class="tab-btn active" onclick="switchView('fl-loop')">Federated Learning Network</button>
+        <button class="tab-btn" onclick="switchView('scenarios')">4-Scenario Comparative Benchmark</button>
+        <button class="print-btn" onclick="window.print()">🖨️ Export / Print</button>
+    </div>
+
+    <main class="workspace">
+        
+        <!-- Tab 1: FL Loop View -->
+        <div id="fl-loop" class="view-content active">
+            <svg class="connections-svg" id="connections-svg">
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 1.5 L 8 5 L 0 8.5 z" class="marker-path" />
+                    </marker>
+                    <marker id="arrow-active" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                        <path d="M 0 1.5 L 8 5 L 0 8.5 z" class="marker-path active" />
+                    </marker>
+                </defs>
+            </svg>
+
+            <!-- Central Server -->
+            <div class="card server-card" id="card-server">
+                <div class="card-title">
+                    <span>🛰️</span> Central Server
+                </div>
+                <p class="card-desc">Coordinates global weights, performs parameter aggregation, and runs the ASIO hyperparameter optimization loop.</p>
+                <div class="server-components">
+                    <div class="sub-component" id="comp-model">
+                        <span>Global Model Configuration</span>
+                        <strong>YOLO26 / YOLO12</strong>
+                    </div>
+                    <div class="sub-component" id="comp-agg">
+                        <span>ASIO Weighted & FedAvg</span>
+                        <strong>Aggregation Engine</strong>
+                    </div>
+                    <div class="sub-component" id="comp-asio">
+                        <span>Swarm Search Optimizer</span>
+                        <strong>ASIO Optimizer</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client 1 -->
+            <div class="card client-card client-1" id="card-client-1">
+                <div class="card-title">
+                    <span>🏥</span> Client 1 (Simulated Hospital A)
+                </div>
+                <p class="card-desc">Trains model locally on Client 1's non-IID MRI datasets and sends back parameter gradients.</p>
+                <div class="db-badge">Local Patient Group: 00244, 00013, 00109</div>
+                <div class="agent-chain">
+                    <div class="agent-node"><span>Data</span>DataAgent</div>
+                    <div class="agent-node"><span>Preprocess</span>PreprocessAgent</div>
+                    <div class="agent-node"><span>Augment</span>AugmentAgent</div>
+                    <div class="agent-node"><span>ASIO HP</span>ASIOAgent</div>
+                    <div class="agent-node"><span>Train</span>SegAgent</div>
+                    <div class="agent-node"><span>Eval</span>EvalAgent</div>
+                </div>
+            </div>
+
+            <!-- Client 2 -->
+            <div class="card client-card client-2" id="card-client-2">
+                <div class="card-title">
+                    <span>🏥</span> Client 2 (Simulated Hospital B)
+                </div>
+                <p class="card-desc">Trains model locally on Client 2's non-IID MRI datasets and sends back parameter gradients.</p>
+                <div class="db-badge">Local Patient Group: 00065, 00006, 00084</div>
+                <div class="agent-chain">
+                    <div class="agent-node"><span>Data</span>DataAgent</div>
+                    <div class="agent-node"><span>Preprocess</span>PreprocessAgent</div>
+                    <div class="agent-node"><span>Augment</span>AugmentAgent</div>
+                    <div class="agent-node"><span>ASIO HP</span>ASIOAgent</div>
+                    <div class="agent-node"><span>Train</span>SegAgent</div>
+                    <div class="agent-node"><span>Eval</span>EvalAgent</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Comparative Study Scenarios View -->
+        <div id="scenarios" class="view-content">
+            <div class="scenarios-grid">
+                
+                <!-- Scenario 1 -->
+                <div class="scenario-card asio">
+                    <h3>YOLO26 + ASIO <span class="scenario-badge">Optimized</span></h3>
+                    <p class="card-desc">The primary proposed setup. Uses the fine-tuned YOLO26-seg model with dynamic Swarm hyperparameter search and Dice-weighted server aggregation.</p>
+                    <ul class="scenario-features">
+                        <li>Model Initialization: Pre-trained YOLO26-seg (BraTS best.pt)</li>
+                        <li>Aggregation Strategy: ASIO Dice-Weighted</li>
+                        <li>Hyperparameter Tuning: Dynamic ASIO Optimizer active</li>
+                        <li>Warmup: Disabled (trains instantly with searched lr)</li>
+                    </ul>
+                </div>
+
+                <!-- Scenario 2 -->
+                <div class="scenario-card baseline">
+                    <h3>YOLO26 Baseline <span class="scenario-badge">Baseline</span></h3>
+                    <p class="card-desc">The standard YOLO26 comparison setup. Uses standard sample-weighted FedAvg parameter aggregation and standard fixed hyperparameters.</p>
+                    <ul class="scenario-features">
+                        <li>Model Initialization: Pre-trained YOLO26-seg (BraTS best.pt)</li>
+                        <li>Aggregation Strategy: Standard FedAvg</li>
+                        <li>Hyperparameters: Fixed (lr0=0.01, conf=0.25, batch=8)</li>
+                        <li>Warmup: Disabled</li>
+                    </ul>
+                </div>
+
+                <!-- Scenario 3 -->
+                <div class="scenario-card asio">
+                    <h3>YOLO12 + ASIO <span class="scenario-badge">Optimized</span></h3>
+                    <p class="card-desc">The lightweight YOLO12-seg setup with the ASIO optimizer. Starts from scratch on BraTS, utilizing dynamic restricted bounds and lenient validation conf thresholds.</p>
+                    <ul class="scenario-features">
+                        <li>Model Initialization: Raw COCO weights (3-class adapted)</li>
+                        <li>Aggregation Strategy: ASIO Dice-Weighted</li>
+                        <li>ASIO lr0 Bounded: restricted to (1e-4, 5e-3) for convergence</li>
+                        <li>Lenient Val Confidence: Dynamic, bounded to (0.05, 0.25)</li>
+                    </ul>
+                </div>
+
+                <!-- Scenario 4 -->
+                <div class="scenario-card baseline">
+                    <h3>YOLO12 Baseline <span class="scenario-badge">Baseline</span></h3>
+                    <p class="card-desc">Standard YOLO12 configuration. Serves as the ultimate baseline comparison, using raw COCO weights and standard sample-weighted FedAvg.</p>
+                    <ul class="scenario-features">
+                        <li>Model Initialization: Raw COCO weights (3-class adapted)</li>
+                        <li>Aggregation Strategy: Standard FedAvg</li>
+                        <li>Stable Fixed Hyperparameters: (lr0=0.001, conf=0.15)</li>
+                        <li>Warmup: Disabled</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot dot-purple"></div> Server Control & Aggregation</div>
+        <div class="legend-item"><div class="legend-dot dot-blue"></div> Clients / Multi-Agent Chains</div>
+        <div class="legend-item"><div class="legend-dot dot-emerald"></div> Local Dataset Groups</div>
+    </div>
+
+    <script>
+        function switchView(viewId) {
+            // Switch tab buttons active class
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (event && event.target && event.target.classList.contains('tab-btn')) {
+                event.target.classList.add('active');
+            }
+
+            // Switch view contents active class
+            const contents = document.querySelectorAll('.view-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+
+            // If switching to FL loop, draw connections
+            if (viewId === 'fl-loop') {
+                setTimeout(drawConnections, 100);
+            } else {
+                clearConnections();
+            }
+        }
+
+        function clearConnections() {
+            const svg = document.getElementById('connections-svg');
+            while (svg.lastChild && svg.lastChild.nodeName === 'path') {
+                svg.removeChild(svg.lastChild);
+            }
+            const badges = document.querySelectorAll('.flow-badge');
+            badges.forEach(b => b.remove());
+        }
+
+        function drawConnections() {
+            clearConnections();
+
+            const serverCard = document.getElementById('card-server');
+            const client1 = document.getElementById('card-client-1');
+            const client2 = document.getElementById('card-client-2');
+
+            if (!serverCard || !client1 || !client2) return;
+
+            const workspaceRect = document.querySelector('.workspace').getBoundingClientRect();
+
+            const getCardPorts = (cardEl) => {
+                const rect = cardEl.getBoundingClientRect();
+                return {
+                    top: { x: rect.left + rect.width / 2 - workspaceRect.left, y: rect.top - workspaceRect.top },
+                    bottom: { x: rect.left + rect.width / 2 - workspaceRect.left, y: rect.bottom - workspaceRect.top },
+                    left: { x: rect.left - workspaceRect.left, y: rect.top + rect.height / 2 - workspaceRect.top },
+                    right: { x: rect.right - workspaceRect.left, y: rect.top + rect.height / 2 - workspaceRect.top }
+                };
+            };
+
+            const serverPorts = getCardPorts(serverCard);
+            const client1Ports = getCardPorts(client1);
+            const client2Ports = getCardPorts(client2);
+
+            // 1. Download Path (Server Bottom Left -> Client 1 Top center)
+            drawBezier(
+                serverPorts.bottom.x - 60, 
+                serverPorts.bottom.y, 
+                client1Ports.top.x - 30, 
+                client1Ports.top.y - 12, 
+                "Download Model & HPs", 
+                false
+            );
+            
+            // 2. Download Path (Server Bottom Right -> Client 2 Top center)
+            drawBezier(
+                serverPorts.bottom.x + 60, 
+                serverPorts.bottom.y, 
+                client2Ports.top.x + 30, 
+                client2Ports.top.y - 12, 
+                "Download Model & HPs", 
+                false
+            );
+
+            // 3. Upload Path (Client 1 Top Right -> Server Bottom center-left)
+            drawBezier(
+                client1Ports.top.x + 60, 
+                client1Ports.top.y - 5, 
+                serverPorts.bottom.x - 120, 
+                serverPorts.bottom.y + 12, 
+                "Upload Local Weights & Dice", 
+                true
+            );
+
+            // 4. Upload Path (Client 2 Top Left -> Server Bottom center-right)
+            drawBezier(
+                client2Ports.top.x - 60, 
+                client2Ports.top.y - 5, 
+                serverPorts.bottom.x + 120, 
+                serverPorts.bottom.y + 12, 
+                "Upload Local Weights & Dice", 
+                true
+            );
+        }
+
+        function drawBezier(x1, y1, x2, y2, labelText, isReturn = false) {
+            const svg = document.getElementById('connections-svg');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            
+            // Compute control points for vertical flow bezier curves
+            const controlY = y1 + (y2 - y1) * 0.5;
+            const d = `M ${x1} ${y1} C ${x1} ${controlY}, ${x2} ${controlY}, ${x2} ${y2}`;
+            
+            path.setAttribute('d', d);
+            path.setAttribute('class', 'connection-path' + (isReturn ? ' upload' : ''));
+            path.setAttribute('marker-end', 'url(#arrow)');
+            path.style.pointerEvents = 'stroke';
+
+            // Create float label badge
+            const workspace = document.querySelector('.workspace');
+            const labelBadge = document.createElement('div');
+            labelBadge.className = 'flow-badge' + (isReturn ? ' return' : '');
+            labelBadge.innerText = labelText;
+            
+            labelBadge.style.left = `${(x1 + x2) / 2}px`;
+            labelBadge.style.top = `${(y1 + y2) / 2}px`;
+            workspace.appendChild(labelBadge);
+
+            // Setup hover highlight linkage
+            const highlight = () => {
+                path.classList.add('active');
+                path.setAttribute('marker-end', 'url(#arrow-active)');
+                labelBadge.classList.add('active');
+            };
+
+            const unhighlight = () => {
+                path.classList.remove('active');
+                path.setAttribute('marker-end', 'url(#arrow)');
+                labelBadge.classList.remove('active');
+            };
+
+            path.addEventListener('mouseenter', highlight);
+            path.addEventListener('mouseleave', unhighlight);
+
+            svg.appendChild(path);
+        }
+
+        function setTheme(themeName) {
+            document.body.className = '';
+            document.body.classList.add('theme-' + themeName);
+            
+            // Update active states for theme selector buttons
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                if (btn.id === 'btn-theme-' + themeName) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Re-draw connections
+            setTimeout(drawConnections, 100);
+        }
+
+        // Draw connections on load and resize
+        window.addEventListener('load', () => setTimeout(drawConnections, 200));
+        window.addEventListener('resize', drawConnections);
+    </script>
+</body>
+</html>

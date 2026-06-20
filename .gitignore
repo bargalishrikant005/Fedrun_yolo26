@@ -1,0 +1,66 @@
+# ─── Python Caches & Environments ───
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv
+venv/
+ENV/
+.conda
+
+# ─── Local Data & Datasets (Avoid uploading GBs of MRI data) ───
+data/processed/
+data/splits/
+data/raw/
+BraTS-PEDs-v1/
+BraTS-PEDs-v1*
+*.nii
+*.nii.gz
+*.dcm
+
+# ─── Model Weights & Checkpoints (Avoid uploading heavy weights) ───
+*.pt
+*.onnx
+*.engine
+models/*.pt
+models/yolo26/weights/*.pt
+models/yolo12_3class.pt
+models/active_*.pt
+runs/
+
+# ─── Logs & Performance Outputs ───
+logs/
+*.log
+.system_generated/
+
+# ─── ReportLab Clinical PDFs ───
+reports/pdf_reports/
+*.pdf
+
+# ─── OS Specific Files ───
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

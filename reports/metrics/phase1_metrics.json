@@ -1,0 +1,57 @@
+{
+  "phase": "1_sample",
+  "n_patients": 5,
+  "n_clients": 2,
+  "n_rounds": 3,
+  "fl_rounds": [
+    {
+      "round": 1,
+      "client_dice": [
+        0.0,
+        0.0
+      ],
+      "mean_dice": 0.0
+    },
+    {
+      "round": 2,
+      "client_dice": [
+        0.0,
+        0.0
+      ],
+      "mean_dice": 0.0
+    },
+    {
+      "round": 3,
+      "client_dice": [
+        0.0,
+        0.0
+      ],
+      "mean_dice": 0.0
+    }
+  ],
+  "final_metrics": {
+    "dice": 0.02327184406986669,
+    "iou": 0.0118362494507821,
+    "hd95": 122.6510004841895,
+    "precision": 0.01183624945077573,
+    "recall": 0.7499999999748592,
+    "f1": 0.023271843841056968,
+    "mAP50": 0.02327184406986669,
+    "n_slices": 20
+  },
+  "per_class_metrics": {
+    "SNFH": {
+      "dice": 0.7,
+      "iou": 0.7
+    },
+    "tumor_core": {
+      "dice": 0.0,
+      "iou": 0.0
+    },
+    "enhancing_tumor": {
+      "dice": 1.0,
+      "iou": 1.0
+    }
+  },
+  "tumor_volume_cc": 305.286
+}

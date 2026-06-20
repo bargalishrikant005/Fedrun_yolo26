@@ -1,0 +1,94 @@
+[
+  {
+    "scenario": "yolo26_asio",
+    "rounds": [
+      {
+        "round": 1,
+        "train_dice": 0.14163,
+        "val_dice": 0.15032531966903956
+      },
+      {
+        "round": 2,
+        "train_dice": 0.096405,
+        "val_dice": 0.15981368280865518
+      }
+    ],
+    "test_results": {
+      "dice": 0.21313203696009028,
+      "iou": 0.17283810217229287,
+      "precision": 0.18956667555586892,
+      "recall": 0.2619942280239316,
+      "f1": 0.21313203562594218,
+      "hd95": 147.32803704391475
+    }
+  },
+  {
+    "scenario": "yolo26_baseline",
+    "rounds": [
+      {
+        "round": 1,
+        "train_dice": 0.14163,
+        "val_dice": 0.15032531966903956
+      },
+      {
+        "round": 2,
+        "train_dice": 0.096405,
+        "val_dice": 0.15032531966903956
+      }
+    ],
+    "test_results": {
+      "dice": 0.2229366714882047,
+      "iou": 0.17976859305672713,
+      "precision": 0.1964050072378982,
+      "recall": 0.2788045332644273,
+      "f1": 0.22293667008486082,
+      "hd95": 144.28523542877295
+    }
+  },
+  {
+    "scenario": "yolo12_asio",
+    "rounds": [
+      {
+        "round": 1,
+        "train_dice": 0.14163,
+        "val_dice": 0.0
+      },
+      {
+        "round": 2,
+        "train_dice": 0.096405,
+        "val_dice": 0.0
+      }
+    ],
+    "test_results": {
+      "dice": 0.0,
+      "iou": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "hd95": 200.0
+    }
+  },
+  {
+    "scenario": "yolo12_baseline",
+    "rounds": [
+      {
+        "round": 1,
+        "train_dice": 0.14163,
+        "val_dice": 0.0
+      },
+      {
+        "round": 2,
+        "train_dice": 0.096405,
+        "val_dice": 0.0
+      }
+    ],
+    "test_results": {
+      "dice": 0.0,
+      "iou": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "hd95": 200.0
+    }
+  }
+]

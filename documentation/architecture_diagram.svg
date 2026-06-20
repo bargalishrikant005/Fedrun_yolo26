@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" width="100%" height="100%">
+  <defs>
+    <!-- Sharp publication markers for curves -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#000000" />
+    </marker>
+  </defs>
+  
+  <style>
+    .title { font-family: 'Times New Roman', Times, serif; font-size: 20px; font-weight: bold; fill: #000000; text-anchor: middle; }
+    .subtitle { font-family: 'Times New Roman', Times, serif; font-size: 14px; fill: #333333; text-anchor: middle; }
+    .card-title { font-family: 'Times New Roman', Times, serif; font-size: 16px; font-weight: bold; fill: #000000; }
+    .card-desc { font-family: 'Times New Roman', Times, serif; font-size: 11px; fill: #333333; }
+    .card-border { fill: #ffffff; stroke: #000000; stroke-width: 2px; }
+    .server-border { fill: #ffffff; stroke: #000000; stroke-width: 2px; }
+    .sub-border { fill: #ffffff; stroke: #000000; stroke-width: 1px; }
+    .sub-text { font-family: 'Times New Roman', Times, serif; font-size: 12px; fill: #000000; }
+    .badge-border { fill: #ffffff; stroke: #000000; stroke-width: 1px; rx: 10px; ry: 10px; }
+    .badge-text { font-family: 'Times New Roman', Times, serif; font-size: 10px; font-weight: bold; fill: #000000; }
+    .agent-title { font-family: 'Times New Roman', Times, serif; font-size: 11px; font-weight: bold; fill: #000000; }
+    .agent-name { font-family: 'Times New Roman', Times, serif; font-size: 9px; fill: #333333; }
+    .flow-line { fill: none; stroke: #000000; stroke-width: 2px; }
+    .flow-badge-bg { fill: #ffffff; stroke: #000000; stroke-width: 1px; rx: 12px; ry: 12px; }
+    .flow-badge-text { font-family: 'Times New Roman', Times, serif; font-size: 11px; font-weight: bold; fill: #000000; text-anchor: middle; }
+  </style>
+
+  <!-- Background -->
+  <rect width="1000" height="650" fill="#ffffff" />
+
+  <!-- Diagram Title -->
+  <text x="500" y="35" class="title">FedASIO-YOLO26 System Architecture Diagram</text>
+
+  <!-- ================= SERVER ================= -->
+  <!-- Server Card (Width: 400, Height: 180) -->
+  <rect x="300" y="70" width="400" height="180" rx="10" ry="10" class="server-border" />
+  <text x="320" y="95" class="card-title">Central Server</text>
+  <text x="320" y="115" class="card-desc">Coordinates weights, executes ASIO hyperparameter optimization loop.</text>
+
+  <!-- Server Sub-Components -->
+  <!-- Model Config -->
+  <rect x="320" y="130" width="360" height="30" rx="5" ry="5" class="sub-border" />
+  <text x="335" y="148" class="sub-text">Global Model Configuration</text>
+  <text x="665" y="148" class="sub-text" font-weight="bold" text-anchor="end">YOLO26 / YOLO12</text>
+
+  <!-- Agg Engine -->
+  <rect x="320" y="168" width="360" height="30" rx="5" ry="5" class="sub-border" />
+  <text x="335" y="186" class="sub-text">Aggregation Strategy</text>
+  <text x="665" y="186" class="sub-text" font-weight="bold" text-anchor="end">ASIO Weighted Aggregation</text>
+
+  <!-- Optimizer -->
+  <rect x="320" y="206" width="360" height="30" rx="5" ry="5" class="sub-border" />
+  <text x="335" y="224" class="sub-text">Swarm Search Optimizer</text>
+  <text x="665" y="224" class="sub-text" font-weight="bold" text-anchor="end">ASIO Optimizer Engine</text>
+
+
+  <!-- ================= CLIENT 1 ================= -->
+  <!-- Client 1 Card (Width: 420, Height: 240) -->
+  <rect x="50" y="350" width="420" height="240" rx="10" ry="10" class="card-border" />
+  <text x="70" y="375" class="card-title">Client 1 (Simulated Hospital A)</text>
+  <text x="70" y="395" class="card-desc">Trains model locally on non-IID MRI datasets &amp; transmits local weights.</text>
+
+  <!-- Database Badge -->
+  <rect x="70" y="407" width="230" height="20" class="badge-border" />
+  <text x="80" y="420" class="badge-text">Local Dataset: BraTS Patients 00244, 00013, 00109</text>
+
+  <!-- Multi-Agent Chain Grid inside Client 1 -->
+  <!-- Row 1 Nodes -->
+  <!-- Node 1: Data -->
+  <rect x="70" y="445" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="122.5" y="468" class="agent-title" text-anchor="middle">Data</text>
+  <text x="122.5" y="484" class="agent-name" text-anchor="middle">DataAgent</text>
+
+  <!-- Node 2: Preprocess -->
+  <rect x="190" y="445" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="242.5" y="468" class="agent-title" text-anchor="middle">Preprocess</text>
+  <text x="242.5" y="484" class="agent-name" text-anchor="middle">PreprocessAgent</text>
+
+  <!-- Node 3: Augment -->
+  <rect x="310" y="445" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="362.5" y="468" class="agent-title" text-anchor="middle">Augment</text>
+  <text x="362.5" y="484" class="agent-name" text-anchor="middle">AugmentAgent</text>
+
+  <!-- Row 2 Nodes -->
+  <!-- Node 4: ASIO HP -->
+  <rect x="70" y="515" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="122.5" y="538" class="agent-title" text-anchor="middle">ASIO HP</text>
+  <text x="122.5" y="554" class="agent-name" text-anchor="middle">ASIOAgent</text>
+
+  <!-- Node 5: Train -->
+  <rect x="190" y="515" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="242.5" y="538" class="agent-title" text-anchor="middle">Train</text>
+  <text x="242.5" y="554" class="agent-name" text-anchor="middle">SegAgent</text>
+
+  <!-- Node 6: Eval -->
+  <rect x="310" y="515" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="362.5" y="538" class="agent-title" text-anchor="middle">Evaluate</text>
+  <text x="362.5" y="554" class="agent-name" text-anchor="middle">EvalAgent</text>
+
+
+  <!-- ================= CLIENT 2 ================= -->
+  <!-- Client 2 Card (Width: 420, Height: 240) -->
+  <rect x="530" y="350" width="420" height="240" rx="10" ry="10" class="card-border" />
+  <text x="550" y="375" class="card-title">Client 2 (Simulated Hospital B)</text>
+  <text x="550" y="395" class="card-desc">Trains model locally on non-IID MRI datasets &amp; transmits local weights.</text>
+
+  <!-- Database Badge -->
+  <rect x="550" y="407" width="230" height="20" class="badge-border" />
+  <text x="560" y="420" class="badge-text">Local Dataset: BraTS Patients 00065, 00006, 00084</text>
+
+  <!-- Multi-Agent Chain Grid inside Client 2 -->
+  <!-- Row 1 Nodes -->
+  <!-- Node 1: Data -->
+  <rect x="550" y="445" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="602.5" y="468" class="agent-title" text-anchor="middle">Data</text>
+  <text x="602.5" y="484" class="agent-name" text-anchor="middle">DataAgent</text>
+
+  <!-- Node 2: Preprocess -->
+  <rect x="670" y="445" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="722.5" y="468" class="agent-title" text-anchor="middle">Preprocess</text>
+  <text x="722.5" y="484" class="agent-name" text-anchor="middle">PreprocessAgent</text>
+
+  <!-- Node 3: Augment -->
+  <rect x="790" y="445" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="842.5" y="468" class="agent-title" text-anchor="middle">Augment</text>
+  <text x="842.5" y="484" class="agent-name" text-anchor="middle">AugmentAgent</text>
+
+  <!-- Row 2 Nodes -->
+  <!-- Node 4: ASIO HP -->
+  <rect x="550" y="515" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="602.5" y="538" class="agent-title" text-anchor="middle">ASIO HP</text>
+  <text x="602.5" y="554" class="agent-name" text-anchor="middle">ASIOAgent</text>
+
+  <!-- Node 5: Train -->
+  <rect x="670" y="515" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="722.5" y="538" class="agent-title" text-anchor="middle">Train</text>
+  <text x="722.5" y="554" class="agent-name" text-anchor="middle">SegAgent</text>
+
+  <!-- Node 6: Eval -->
+  <rect x="790" y="515" width="105" height="50" rx="5" ry="5" class="sub-border" />
+  <text x="842.5" y="538" class="agent-title" text-anchor="middle">Evaluate</text>
+  <text x="842.5" y="554" class="agent-name" text-anchor="middle">EvalAgent</text>
+
+
+  <!-- ================= CONNECTIONS (CURVED ARROWS) ================= -->
+  <!-- 1. Download Path (Server -> Client 1) -->
+  <path d="M 350 250 C 350 310, 210 290, 210 345" class="flow-line" marker-end="url(#arrow)" />
+  
+  <!-- Flow Badge 1 -->
+  <rect x="200" y="275" width="160" height="22" class="flow-badge-bg" />
+  <text x="280" y="291" class="flow-badge-text">Download Model &amp; HPs</text>
+
+  <!-- 2. Download Path (Server -> Client 2) -->
+  <path d="M 650 250 C 650 310, 790 290, 790 345" class="flow-line" marker-end="url(#arrow)" />
+  
+  <!-- Flow Badge 2 -->
+  <rect x="640" y="275" width="160" height="22" class="flow-badge-bg" />
+  <text x="720" y="291" class="flow-badge-text">Download Model &amp; HPs</text>
+
+  <!-- 3. Upload Path (Client 1 -> Server) -->
+  <path d="M 310 350 C 310 300, 430 320, 430 255" class="flow-line" marker-end="url(#arrow)" />
+
+  <!-- Flow Badge 3 -->
+  <rect x="290" y="315" width="180" height="22" class="flow-badge-bg" />
+  <text x="380" y="331" class="flow-badge-text">Upload Local Weights &amp; Dice</text>
+
+  <!-- 4. Upload Path (Client 2 -> Server) -->
+  <path d="M 690 350 C 690 300, 570 320, 570 255" class="flow-line" marker-end="url(#arrow)" />
+
+  <!-- Flow Badge 4 -->
+  <rect x="530" y="315" width="180" height="22" class="flow-badge-bg" />
+  <text x="620" y="331" class="flow-badge-text">Upload Local Weights &amp; Dice</text>
+
+</svg>

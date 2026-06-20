@@ -1,0 +1,59 @@
+# FedASIO-YOLO26 Requirements
+# Install: conda activate fedasio && pip install -r requirements.txt
+
+# Core Deep Learning (Apple M5 MPS)
+torch==2.14.0.dev20260615     # PyTorch nightly with MPS support
+torchvision==0.29.0.dev20260615
+torchaudio==2.11.0.dev20260615
+
+# YOLO Segmentation
+ultralytics==8.4.68           # YOLO11/12/26-Seg engine
+
+# Federated Learning
+flwr==1.31.0                  # Flower FL framework
+
+# Multi-Agent Orchestration
+langgraph==1.2.5              # LangGraph state machines
+langchain==1.3.9              # LangChain for LLM integration
+langchain-community==0.4.2
+langchain-core==1.4.7
+
+# Medical Image I/O
+nibabel==5.4.2                # NIfTI format (.nii, .nii.gz)
+pydicom==3.0.2                # DICOM format (.dcm)
+
+# Differential Privacy
+opacus==1.6.0                 # Opacus DP-SGD
+
+# Scientific Computing
+numpy==2.4.6
+scipy==1.17.1
+scikit-learn==1.9.0
+
+# Image Processing
+opencv-python-headless==4.13.0.92
+Pillow==12.2.0
+albumentations==2.0.8         # Medical augmentation
+
+# Visualization
+matplotlib==3.11.0
+seaborn==0.13.2
+plotly==6.8.0
+
+# Dashboard
+streamlit==1.51.0             # Clinical dashboard
+
+# PDF Report Generation
+reportlab==4.5.1
+
+# LLM (Qwen2.5-7B clinical reports)
+transformers==5.12.1
+huggingface_hub==1.19.0
+accelerate==1.14.0
+
+# Utilities
+pandas==3.0.3
+pyyaml==6.0.3
+tqdm==4.68.2
+requests==2.34.2
+wandb==0.27.2                 # Optional experiment tracking
