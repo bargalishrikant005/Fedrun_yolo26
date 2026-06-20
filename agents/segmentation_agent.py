@@ -74,7 +74,7 @@ def segmentation_agent(state: FedASIOState) -> FedASIOState:
         patient_id = state.get("patient_id", "unknown")
         slices = state.get("augmented_slices") or state.get("processed_slices", [])
 
-        device = "mps" if torch.backends.mps.is_available() else "cpu"
+        device = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
         logger.info(f"[SegAgent] stage={fl_stage} | client={fl_client_id} | round={fl_round} | device={device}")
 
         # ── TRAINING MODE ──────────────────────────────────────────────────

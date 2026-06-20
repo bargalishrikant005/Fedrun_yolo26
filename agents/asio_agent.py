@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 _asio_instance: ASIOOptimizer = None
 
 
-def _build_fitness_fn(val_slices: list, model_path: str, device: str = "mps"):
+def _build_fitness_fn(val_slices: list, model_path: str, device: str = "cuda"):
     """
     Build a fitness function that trains YOLO for 1 epoch on sample slices
     and returns the validation Dice score.
@@ -112,7 +112,7 @@ def asio_agent(state: FedASIOState) -> FedASIOState:
     logger.info(f"[ASIOAgent] FL Round {fl_round} | Patient: {patient_id} | Slices: {len(val_slices)}")
 
     import torch
-    device = "mps" if torch.backends.mps.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
 
     try:
         # Determine model path for fitness evaluation
