@@ -92,10 +92,26 @@ def get_clean_yolo12_3class_weights() -> str:
     from ultralytics import YOLO
     
     # Load raw 80-class YOLO12 model
-    raw_weights = "/Users/shrikant/Downloads/yolo vs 26/yolo12n-seg.pt"
-    if not os.path.exists(raw_weights):
-        raise FileNotFoundError(f"Missing raw YOLO12 model checkpoint at: {raw_weights}")
+    possible_paths = [
+        "/Users/shrikant/Downloads/yolo vs 26/yolo12n-seg.pt",
+        "yolo12n-seg.pt",
+        "/content/yolo12n-seg.pt",
+        "/content/drive/MyDrive/yolo12n-seg.pt",
+        "/content/drive/MyDrive/yolo vs 26/yolo12n-seg.pt",
+    ]
+    raw_weights = None
+    for p in possible_paths:
+        if os.path.exists(p):
+            raw_weights = p
+            break
+            
+    if raw_weights is None:
+        raise FileNotFoundError(
+            "Missing raw YOLO12 model checkpoint. Please drag & drop 'yolo12n-seg.pt' "
+            "into Google Colab's file panel or upload it to Google Drive."
+        )
         
+    logger.info(f"Using raw weights from: {raw_weights}")
     model = YOLO(raw_weights)
     
     # Run a dummy training on 1 slice to force YOLO to reinitialize heads for nc=3

@@ -21,7 +21,12 @@ logger = logging.getLogger(__name__)
 # Falls back to yolo11n-seg if YOLO26 weights not found
 MODEL_OPTIONS = [
     "/Users/shrikant/Downloads/FedASIO-YOLO26/models/yolo26/weights/best.pt",
+    "models/yolo26/weights/best.pt",
     "/Users/shrikant/Downloads/yolo vs 26/yolo26n-seg.pt",
+    "yolo26n-seg.pt",
+    "/content/yolo26n-seg.pt",
+    "/content/drive/MyDrive/yolo26n-seg.pt",
+    "/content/drive/MyDrive/yolo vs 26/yolo26n-seg.pt",
     "/Users/shrikant/Downloads/yolo vs 26/yolo11n-seg.pt",
     "yolo11n-seg.pt",  # auto-download fallback
 ]
