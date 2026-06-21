@@ -95,10 +95,20 @@ def generate_ablation_figure(ablation_results: dict):
     axes[2].grid(True, alpha=0.3, axis="x")
 
     plt.tight_layout()
-    path = os.path.join(FIGURES_DIR, "ablation_study.png")
-    plt.savefig(path, dpi=150, bbox_inches="tight")
+    # Save PNG (High-resolution 300 DPI)
+    path_png = os.path.join(FIGURES_DIR, "ablation_study.png")
+    plt.savefig(path_png, dpi=300, bbox_inches="tight")
+    
+    # Save SVG
+    path_svg = os.path.join(FIGURES_DIR, "ablation_study.svg")
+    plt.savefig(path_svg, bbox_inches="tight")
+    
+    # Save PDF
+    path_pdf = os.path.join(FIGURES_DIR, "ablation_study.pdf")
+    plt.savefig(path_pdf, bbox_inches="tight")
+    
     plt.close()
-    logger.info(f"Saved ablation figure: {path}")
+    logger.info(f"Saved ablation figures (PNG 300 DPI, SVG, PDF) in {FIGURES_DIR}")
 
 
 def print_latex_table(ablation_results: dict):

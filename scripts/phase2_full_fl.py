@@ -256,10 +256,15 @@ def _generate_convergence_plot(round_results, filename):
     axes[1].set_yscale("log")
 
     plt.tight_layout()
-    path = os.path.join(FIGURES_DIR, filename)
-    plt.savefig(path, dpi=150, bbox_inches="tight")
+    # Save PNG (High-resolution 300 DPI) and vector formats (SVG, PDF)
+    base_path = os.path.join(FIGURES_DIR, filename)
+    name_without_ext = os.path.splitext(base_path)[0]
+    
+    plt.savefig(name_without_ext + ".png", dpi=300, bbox_inches="tight")
+    plt.savefig(name_without_ext + ".svg", bbox_inches="tight")
+    plt.savefig(name_without_ext + ".pdf", bbox_inches="tight")
     plt.close()
-    logger.info(f"Saved convergence plot: {path}")
+    logger.info(f"Saved convergence plots (PNG 300 DPI, SVG, PDF): {name_without_ext}")
 
 
 def main():

@@ -219,10 +219,14 @@ def generate_all_graphs(round_results, final_state):
     ax.grid(True, alpha=0.3, axis="x")
 
     plt.tight_layout()
-    fig1_path = os.path.join(FIGURES_DIR, "phase1_results.png")
-    plt.savefig(fig1_path, dpi=150, bbox_inches="tight")
+    fig1_path_png = os.path.join(FIGURES_DIR, "phase1_results.png")
+    fig1_path_svg = os.path.join(FIGURES_DIR, "phase1_results.svg")
+    fig1_path_pdf = os.path.join(FIGURES_DIR, "phase1_results.pdf")
+    plt.savefig(fig1_path_png, dpi=300, bbox_inches="tight")
+    plt.savefig(fig1_path_svg, bbox_inches="tight")
+    plt.savefig(fig1_path_pdf, bbox_inches="tight")
     plt.close()
-    logger.info(f"Saved: {fig1_path}")
+    logger.info(f"Saved phase 1 results (PNG 300 DPI, SVG, PDF) in {FIGURES_DIR}")
 
     # ── Figure 2: XAI Visualization ───────────────────────────────────────────
     xai_paths = final_state.get("xai_figure_paths", [])
@@ -235,10 +239,14 @@ def generate_all_graphs(round_results, final_state):
             ax2.axis("off")
             ax2.set_title("XAI Visualization: Original | Ground Truth | YOLO26 Prediction | GradCAM Confidence",
                            fontsize=10)
-            fig2_path = os.path.join(FIGURES_DIR, "phase1_xai.png")
-            plt.savefig(fig2_path, dpi=150, bbox_inches="tight")
+            fig2_path_png = os.path.join(FIGURES_DIR, "phase1_xai.png")
+            fig2_path_svg = os.path.join(FIGURES_DIR, "phase1_xai.svg")
+            fig2_path_pdf = os.path.join(FIGURES_DIR, "phase1_xai.pdf")
+            plt.savefig(fig2_path_png, dpi=300, bbox_inches="tight")
+            plt.savefig(fig2_path_svg, bbox_inches="tight")
+            plt.savefig(fig2_path_pdf, bbox_inches="tight")
             plt.close()
-            logger.info(f"Saved: {fig2_path}")
+            logger.info(f"Saved phase 1 XAI plots (PNG 300 DPI, SVG, PDF) in {FIGURES_DIR}")
 
     # Save metrics JSON
     metrics_out = {
@@ -256,7 +264,7 @@ def generate_all_graphs(round_results, final_state):
         json.dump(metrics_out, f, indent=2)
     logger.info(f"Saved metrics: {json_path}")
 
-    return fig1_path
+    return fig1_path_png
 
 
 def main():
