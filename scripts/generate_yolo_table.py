@@ -77,7 +77,7 @@ def print_tables(metrics, target_type="Box"):
     print("\\begin{table}[h]")
     print("\\centering")
     print(f"\\caption{{YOLO validation metrics ({target_type.lower()} detection) for the proposed framework on BraTS-PEDs-v1 dataset.}}")
-    print("\\label{{tab:yolo_metrics_{target_type.lower()}}}")
+    print(f"\\label{{tab:yolo_metrics_{target_type.lower()}}}")
     print("\\begin{tabular}{lccccc}")
     print("\\hline")
     print(f"\\textbf{{Class}} & \\textbf{{Images}} & \\textbf{{{target_type}(P)}} & \\textbf{{R}} & \\textbf{{mAP50}} & \\textbf{{mAP50-95}} \\\\")
