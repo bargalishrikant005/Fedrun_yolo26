@@ -106,13 +106,11 @@ def get_clean_yolo12_3class_weights() -> str:
             break
             
     if raw_weights is None:
-        raise FileNotFoundError(
-            "Missing raw YOLO12 model checkpoint. Please drag & drop 'yolo12n-seg.pt' "
-            "into Google Colab's file panel or upload it to Google Drive."
-        )
-        
-    logger.info(f"Using raw weights from: {raw_weights}")
-    model = YOLO(raw_weights)
+        logger.warning("⚠️ 'yolo12n-seg.pt' was not found! Falling back to initializing a clean model from configuration 'yolo12n-seg.yaml' (training from scratch).")
+        model = YOLO("yolo12n-seg.yaml")
+    else:
+        logger.info(f"Using raw weights from: {raw_weights}")
+        model = YOLO(raw_weights)
     
     # Run a dummy training on 1 slice to force YOLO to reinitialize heads for nc=3
     dummy_dir = "/Users/shrikant/Downloads/FedASIO-YOLO26/data/processed/yolo12_init"
