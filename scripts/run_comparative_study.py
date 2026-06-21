@@ -485,10 +485,20 @@ def generate_comparison_plot(results_summary: list):
     autolabel(rects2)
 
     plt.tight_layout()
-    plot_path = os.path.join(FIGURES_DIR, "comparison_study.png")
-    plt.savefig(plot_path, dpi=150, bbox_inches="tight")
+    # Save PNG (High-resolution 300 DPI for paper insertion)
+    plot_path_png = os.path.join(FIGURES_DIR, "comparison_study.png")
+    plt.savefig(plot_path_png, dpi=300, bbox_inches="tight")
+    
+    # Save SVG (Vector format for LaTeX publication)
+    plot_path_svg = os.path.join(FIGURES_DIR, "comparison_study.svg")
+    plt.savefig(plot_path_svg, bbox_inches="tight")
+    
+    # Save PDF (Vector format for publication insertion)
+    plot_path_pdf = os.path.join(FIGURES_DIR, "comparison_study.pdf")
+    plt.savefig(plot_path_pdf, bbox_inches="tight")
+    
     plt.close()
-    logger.info(f"📊 Saved comparative bar chart: {plot_path}")
+    logger.info(f"📊 Saved comparative bar charts: PNG (300 DPI), SVG, and PDF in {FIGURES_DIR}")
 
 
 def main():
