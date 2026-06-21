@@ -131,9 +131,7 @@ def segmentation_agent(state: FedASIOState) -> FedASIOState:
                 plots=False,
                 save=True,
                 patience=5,
-                reg_max=1,           # DFL-free regression head (YOLO26 Section 3.2.2)
-                end2end=True,        # Dual-head end-to-end NMS-free path (YOLO26 Section 3.2.1)
-                optimizer="MuSGD",   # Hybrid Muon-SGD optimizer (YOLO26 Section 3.3.1)
+                optimizer="SGD",     # SGD optimizer
                 box=7.50,            # YOLO26 loss weight settings (YOLO26 Table S2)
                 cls=0.50,            # YOLO26 loss weight settings (YOLO26 Table S2)
                 dfl=0.0,             # DFL is removed entirely in YOLO26
