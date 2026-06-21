@@ -81,6 +81,89 @@ def create_splits(raw_dir: str, seed: int = 42) -> dict:
     return splits
 
 
+def get_clean_yolo26_3class_weights() -> str:
+    """Ensure we have a clean 3-class YOLO26/11 weights checkpoint on disk."""
+    dest_path = "/Users/shrikant/Downloads/FedASIO-YOLO26/models/yolo26_3class.pt"
+    if os.path.exists(dest_path):
+        logger.info(f"Using existing clean 3-class YOLO26 weights at: {dest_path}")
+        return dest_path
+        
+    logger.info("🔧 Creating a clean 3-class YOLO26/11 model...")
+    from ultralytics import YOLO
+    
+    # Check possible paths for pre-trained weights
+    possible_paths = [
+        "/Users/shrikant/Downloads/FedASIO-YOLO26/models/yolo26/weights/best.pt",
+        "/Users/shrikant/Downloads/yolo vs 26/yolo26n-seg.pt",
+        "yolo26n-seg.pt",
+        "/content/yolo26n-seg.pt",
+        "/content/drive/MyDrive/yolo26n-seg.pt",
+        "/content/drive/MyDrive/yolo vs 26/yolo26n-seg.pt",
+        "/Users/shrikant/Downloads/yolo vs 26/yolo11n-seg.pt",
+        "yolo11n-seg.pt",
+    ]
+    raw_weights = None
+    for p in possible_paths:
+        if os.path.exists(p):
+            raw_weights = p
+            break
+            
+    if raw_weights is None:
+        logger.warning("⚠️ No pre-trained YOLO26/YOLO11 weights found. Will auto-download 'yolo11n-seg.pt' as base.")
+        raw_weights = "yolo11n-seg.pt"
+        
+    logger.info(f"Using raw base weights: {raw_weights}")
+    model = YOLO(raw_weights)
+    
+    # Run a dummy training on 1 slice to force YOLO to reinitialize heads for nc=3
+    dummy_dir = "/Users/shrikant/Downloads/FedASIO-YOLO26/data/processed/yolo26_init"
+    os.makedirs(dummy_dir, exist_ok=True)
+    
+    from agents.segmentation_agent import _create_data_yaml
+    data_yaml = _create_data_yaml(dummy_dir, "train")
+    
+    # Create a dummy image and label
+    images_dir = os.path.join(dummy_dir, "images", "train")
+    labels_dir = os.path.join(dummy_dir, "labels", "train")
+    os.makedirs(images_dir, exist_ok=True)
+    os.makedirs(labels_dir, exist_ok=True)
+    
+    import cv2
+    dummy_img = np.zeros((256, 256, 3), dtype=np.uint8)
+    cv2.imwrite(os.path.join(images_dir, "dummy.png"), dummy_img)
+    
+    with open(os.path.join(labels_dir, "dummy.txt"), "w") as lf:
+        lf.write("0 0.45 0.45 0.55 0.45 0.55 0.55 0.45 0.55\n")
+        
+    model.train(
+        data=data_yaml,
+        epochs=1,
+        imgsz=256,
+        batch=1,
+        device="cpu",
+        workers=0,
+        amp=False,
+        optimizer="SGD",
+        lr0=0.0,
+        warmup_epochs=0.0,
+        project="/Users/shrikant/Downloads/FedASIO-YOLO26/runs",
+        name="yolo26_init",
+        exist_ok=True,
+        verbose=False,
+        plots=False,
+        save=True,
+    )
+    
+    best_init = "/Users/shrikant/Downloads/FedASIO-YOLO26/runs/yolo26_init/weights/best.pt"
+    if not os.path.exists(best_init):
+        best_init = "/Users/shrikant/Downloads/FedASIO-YOLO26/runs/yolo26_init/weights/last.pt"
+        
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    shutil.copy(best_init, dest_path)
+    logger.info(f"✅ Clean 3-class YOLO26 weights saved to: {dest_path}")
+    return dest_path
+
+
 def get_clean_yolo12_3class_weights() -> str:
     """Ensure we have a clean 3-class YOLO12-seg weights checkpoint on disk."""
     dest_path = "/Users/shrikant/Downloads/FedASIO-YOLO26/models/yolo12_3class.pt"
@@ -431,7 +514,7 @@ def main():
 
     # Step 2: Initialize clean base weights
     logger.info("\n📂 Step 2: Initializing baseline weights...")
-    yolo26_weights = "/Users/shrikant/Downloads/FedASIO-YOLO26/models/yolo26/weights/best.pt"
+    yolo26_weights = get_clean_yolo26_3class_weights()
     yolo12_weights = get_clean_yolo12_3class_weights()
 
     # Step 3: Run the simulations
